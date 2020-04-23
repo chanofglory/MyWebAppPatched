@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Результаты поиска</title>
+</head>
+<body>
+<h2>Результаты поиска по моим курсам</h2>
+{% for result in results %}
+    <p><a href="/c/{{ result.id }}">{{ result.name }}</a></p>
+{% else %}
+    <p>Нет найденных курсов</p>
+{% endfor %}
+</body>
+</html>

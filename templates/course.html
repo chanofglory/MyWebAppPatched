@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Страница курса {{ course.name }}</title>
+</head>
+<body>
+<h2>Добро пожаловать на курс {{ course.name }}</h2>
+<h3>{{ course.desc }}</h3>
+<br>
+<p>Комментарии к курсу:</p>
+{% for cmt in comments %}
+    <p><b>{{ cmt.author.username }}</b>: {{ cmt.text|safe }}</p>
+{% endfor %}
+<br>
+<form method="post" action="/addcomment">
+    <input type="hidden" name="courseid" value="{{ course.id }}">
+    <textarea name="replytext" cols="40" rows="3"></textarea>
+    <input type="submit" value="Отправить">
+</form>
+<a href="/profile">Домой</a>
+</body>
+</html>
