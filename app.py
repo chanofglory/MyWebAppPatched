@@ -2,8 +2,9 @@
 from flask import Flask, render_template, request, session, redirect
 import os
 from tabledef import User, Course, Order, Comment
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, and_
 from sqlalchemy.orm import sessionmaker
+from jinja2 import escape
 
 engine = create_engine('sqlite:///tutorial.db', echo=True)
 app = Flask(__name__)
@@ -57,10 +58,11 @@ def buycourse():
 # show on search in my courses
 @app.route("/mycourses", methods=['POST'])
 def my_courses():
-    stmt = text("SELECT name, id FROM courses WHERE id IN (SELECT course_id FROM orders WHERE user_id = "
-                + str(session['cur_user_id']) + ") AND name like '%" + request.form['searchString'] + "%'")
+    stmt = text("SELECT name, id FROM courses WHERE id IN (SELECT course_id FROM orders WHERE user_id = :userid)"
+                " AND name like :searchstring")
     s = sessionmaker(bind=engine)()
-    results = s.query(Course).from_statement(stmt).all()
+    results = s.query(Course).from_statement(stmt).params(
+        searchstring='%' + request.form['searchString'] + '%', userid=str(session['cur_user_id'])).all()
     return render_template('mycourses.html', results=results)
 
 
@@ -81,6 +83,9 @@ def course_page(cid):
         return home()
     s = sessionmaker(bind=engine)()
     course = s.query(Course).filter(Course.id == cid).first()
+    user_order = s.query(Order).filter(and_(Order.course_id == cid, Order.user_id == session['cur_user_id'])).first()
+    if not user_order:
+        return profile_page()
     comments = s.query(Comment).filter(Comment.course_id == cid).all()
     return render_template('course.html', course=course, comments=comments)
 
@@ -93,7 +98,7 @@ def add_comment():
     s = sessionmaker(bind=engine)()
     cur_user = s.query(User).filter(User.id == session['cur_user_id']).first()
     course = s.query(Course).filter(Course.id == course_id).first()
-    cmnt = Comment(cur_user, course, request.form['replytext'])
+    cmnt = Comment(cur_user, course, str(escape(request.form['replytext'])))
     s.add(cmnt)
     s.commit()
     return 'Comment added!<br><a href="/c/' + course_id + '">Back</a>'

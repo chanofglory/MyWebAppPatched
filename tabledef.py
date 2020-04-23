@@ -2,6 +2,7 @@ from sqlalchemy import create_engine, ForeignKey
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+import uuid
 
 engine = create_engine('sqlite:///tutorial.db', echo=True)
 Base = declarative_base()
@@ -33,7 +34,7 @@ class Comment(Base):
 
 class Course(Base):
     __tablename__ = "courses"
-    id = Column(Integer, primary_key=True)
+    id = Column(String, primary_key=True)
     name = Column(String)
     price = Column(Integer)
     desc = Column(String)
@@ -44,6 +45,7 @@ class Course(Base):
         self.name = name
         self.price = price
         self.desc = desc
+        self.id = str(uuid.uuid4())
 
 
 class User(Base):

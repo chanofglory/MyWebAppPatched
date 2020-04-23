@@ -27,6 +27,12 @@ session.add(course2)
 course3 = Course('Курс для успешной жизни', 20000, 'Купи и стань успешным!')
 session.add(course3)
 
+course4 = Course('Еще курс', 20000, 'Купи и стань успешным!')
+session.add(course4)
+
+course5 = Course('Больше курсов', 20000, 'Купи и стань успешным!')
+session.add(course5)
+
 # commit the record the database
 session.commit()
 
